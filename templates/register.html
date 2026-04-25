@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Create Account — StudentMart{% endblock %}
+{% block content %}
+<div class="min-h-[80vh] flex items-center justify-center px-4 py-12 bg-gray-50">
+  <div class="w-full max-w-md">
+    <div class="text-center mb-6">
+      <div class="inline-flex items-center justify-center w-14 h-14 bg-navy rounded-xl mb-3">
+        <span class="font-black text-white text-2xl">S</span>
+      </div>
+      <h1 class="text-2xl font-black text-gray-900">Create Account</h1>
+      <p class="text-sm text-gray-500 mt-1">Join the student marketplace</p>
+    </div>
+    <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+      <form method="POST" action="/register">
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div class="col-span-2">
+            <label class="block text-sm font-semibold text-gray-700 mb-1.5">Full Name *</label>
+            <input type="text" name="name" required placeholder="Your name"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:border-primary"/>
+          </div>
+          <div class="col-span-2">
+            <label class="block text-sm font-semibold text-gray-700 mb-1.5">Email Address *</label>
+            <input type="email" name="email" required placeholder="student@college.edu"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:border-primary"/>
+          </div>
+          <div class="col-span-2">
+            <label class="block text-sm font-semibold text-gray-700 mb-1.5">Password *</label>
+            <input type="password" name="password" required placeholder="Create a password"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:border-primary"/>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1.5">Phone (optional)</label>
+            <input type="tel" name="phone" placeholder="98765 43210"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:border-primary"/>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1.5">City / Area *</label>
+            <select name="area" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:border-primary text-gray-700">
+              {% for a in ['Dhule','Nashik','Mumbai','Pune','Aurangabad','Other'] %}
+              <option value="{{ a }}">{{ a }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-span-2">
+            <label class="block text-sm font-semibold text-gray-700 mb-1.5">College Name</label>
+            <input type="text" name="college" placeholder="Your college/university"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:border-primary"/>
+          </div>
+        </div>
+        <button type="submit" class="w-full btn-primary justify-center py-3 text-sm rounded-lg">
+          Create Account — It's Free
+        </button>
+      </form>
+      <div class="relative my-5"><div class="border-t border-gray-100"></div><span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-3 text-xs text-gray-400">Already registered?</span></div>
+      <a href="/login" class="block text-center w-full border border-gray-300 rounded-lg py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50">
+        Sign In Instead
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

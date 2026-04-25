@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}AI Picks — StudentMart{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+  <div class="text-center mb-8">
+    <div class="inline-flex items-center gap-2 bg-purple-50 border border-purple-200 text-purple-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-4">✨ Powered by Claude AI</div>
+    <h1 class="text-3xl font-black text-gray-900 mb-2">AI Recommendations</h1>
+    <p class="text-gray-500 text-sm">Personalized picks based on your location and student needs</p>
+  </div>
+
+  <div class="bg-white border border-gray-200 rounded-xl p-4 mb-6 flex flex-wrap gap-3 items-center">
+    <span class="text-sm font-semibold text-gray-700">Show picks for:</span>
+    <form method="GET" action="/recommendations" class="flex gap-2 flex-wrap">
+      <select name="area" class="border border-gray-200 rounded-lg px-3 py-2 text-sm">
+        {% for a in ['Dhule','Nashik','Mumbai','Pune','Aurangabad','Other'] %}
+        <option value="{{ a }}" {% if area==a %}selected{% endif %}>{{ a }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn-primary text-sm">✨ Get AI Picks</button>
+    </form>
+  </div>
+
+  {% if ai_error %}<div class="bg-red-50 border border-red-200 text-red-600 rounded-xl p-4 text-sm mb-6"><i class="bi bi-exclamation-circle me-2"></i>{{ ai_error }}</div>{% endif %}
+
+  {% if ai_data %}
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+    <div class="bg-purple-50 border border-purple-100 rounded-xl p-4 flex gap-3">
+      <i class="bi bi-lightbulb-fill text-purple-500 text-xl shrink-0 mt-0.5"></i>
+      <div><div class="text-xs font-bold text-purple-600 uppercase mb-1">Insight for {{ area }}</div><p class="text-sm text-gray-700">{{ ai_data.area_insight }}</p></div>
+    </div>
+    <div class="bg-orange-50 border border-orange-100 rounded-xl p-4 flex gap-3">
+      <i class="bi bi-cash-coin text-orange-500 text-xl shrink-0 mt-0.5"></i>
+      <div><div class="text-xs font-bold text-orange-600 uppercase mb-1">Budget Tip</div><p class="text-sm text-gray-700">{{ ai_data.budget_advice }}</p></div>
+    </div>
+  </div>
+  {% if ai_data.categories_trending %}
+  <div class="flex items-center gap-2 mb-6 flex-wrap">
+    <span class="text-sm font-semibold text-gray-500">Trending:</span>
+    {% for c in ai_data.categories_trending %}
+    <a href="/products?category={{ c }}" class="bg-white border border-gray-200 text-gray-700 text-sm font-medium px-3 py-1.5 rounded-full hover:border-primary hover:text-primary transition-colors">{{ c }}</a>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endif %}
+
+  {% if matched_products %}
+  <h2 class="text-lg font-bold text-gray-800 mb-4">Recommended for You</h2>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+    {% for item in matched_products %}{% set p = item.product %}
+    <div class="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
+      <a href="/product/{{ p['id'] }}" class="block">
+        <div class="h-40 bg-gray-100 overflow-hidden">
+          {% if p['image'] %}<img src="/uploads/{{ p['image'] }}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"/>
+          {% else %}<div class="w-full h-full flex items-center justify-center text-5xl">{{ {'Books':'📚','Calculator':'🧮','Lab Equipment':'🔬','Notes':'📝','Engineering Tools':'🔧'}.get(p['category'],'📦') }}</div>{% endif %}
+        </div>
+      </a>
+      <div class="p-4">
+        <a href="/product/{{ p['id'] }}" class="font-bold text-gray-900 hover:text-primary block truncate">{{ p['name'] }}</a>
+        <div class="font-black text-gray-900 mt-1">₹{{ p['price'] }}</div>
+        <div class="bg-purple-50 rounded-lg p-2.5 mt-3"><div class="text-xs font-bold text-purple-600 mb-1">Why AI picked this</div><p class="text-xs text-gray-600">{{ item.reason }}</p></div>
+        <div class="bg-orange-50 rounded-lg p-2.5 mt-2"><div class="text-xs font-bold text-orange-600 mb-1">💡 Tip</div><p class="text-xs text-gray-600">{{ item.tip }}</p></div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% elif ai_data and not ai_error %}
+  <div class="text-center py-16 text-gray-400"><div class="text-5xl mb-3">🔮</div><p>No matches for {{ area }} right now. Check back soon!</p></div>
+  {% endif %}
+</div>
+{% endblock %}

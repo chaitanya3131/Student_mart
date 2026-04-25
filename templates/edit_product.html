@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Edit Listing — StudentMart{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 sm:px-6 py-10">
+  <div class="mb-6">
+    <div class="text-xs text-gray-400 mb-1">StudentMart › My Listings › Edit</div>
+    <h1 class="text-2xl font-black text-gray-900">Edit Listing</h1>
+  </div>
+  <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+    <form method="POST" action="/edit/{{ product['id'] }}" enctype="multipart/form-data">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div class="sm:col-span-2">
+          <label class="block text-sm font-semibold text-gray-700 mb-1.5">Item Name *</label>
+          <input type="text" name="name" required value="{{ product['name'] }}"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:border-primary"/>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1.5">Price (₹) *</label>
+          <input type="number" name="price" required value="{{ product['price'] }}"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:border-primary"/>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1.5">Category *</label>
+          <select name="category" class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:border-primary text-gray-700">
+            {% for c in ['Books','Calculator','Engineering Tools','Lab Equipment','Notes','Other'] %}
+            <option value="{{ c }}" {% if product['category']==c %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- STATUS UPDATE -->
+        <div class="sm:col-span-2">
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Listing Status</label>
+          <div class="grid grid-cols-3 gap-3">
+            {% for s, icon, desc, color in [
+              ('Available','bi-check-circle-fill','Item is ready to sell','green'),
+              ('Reserved','bi-clock-fill','Item is reserved for someone','yellow'),
+              ('Sold','bi-x-circle-fill','Item has been sold','red')
+            ] %}
+            <label class="cursor-pointer">
+              <input type="radio" name="status" value="{{ s }}" class="hidden peer"
+                {% if (product['status'] or 'Available')==s %}checked{% endif %}/>
+              <div class="border-2 rounded-xl p-3 text-center transition-all border-gray-200 peer-checked:border-{{ color }}-400 peer-checked:bg-{{ color }}-50">
+                <i class="bi {{ icon }} text-xl block mb-1
+                  {% if color=='green' %}text-green-500{% elif color=='yellow' %}text-yellow-500{% else %}text-red-500{% endif %}
+                  peer-checked:text-{{ color }}-600"></i>
+                <div class="text-xs font-bold text-gray-700">{{ s }}</div>
+                <div class="text-xs text-gray-400 mt-0.5">{{ desc }}</div>
+              </div>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="sm:col-span-2">
+          <label class="block text-sm font-semibold text-gray-700 mb-1.5">Description</label>
+          <textarea name="description" rows="4"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm resize-none focus:border-primary">{{ product['description'] }}</textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1.5">Contact (Email)</label>
+          <input type="text" name="contact" value="{{ product['contact'] }}"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:border-primary"/>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1.5">
+            WhatsApp Number
+            <span class="text-xs font-normal text-green-600 ml-1">📱 Buyers WhatsApp you here</span>
+          </label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">+91</span>
+            <input type="tel" name="seller_phone"
+              value="{{ product['seller_phone'] if product['seller_phone'] else '' }}"
+              placeholder="9876543210"
+              class="w-full border border-gray-200 rounded-lg pl-12 pr-3 py-2.5 text-sm focus:border-primary"/>
+          </div>
+          <p class="text-xs text-gray-400 mt-1">Add your number so buyers can WhatsApp you directly — free!</p>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1.5">Area</label>
+          <select name="area" class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:border-primary text-gray-700">
+            {% for a in ['Dhule','Nashik','Mumbai','Pune','Aurangabad','Other'] %}
+            <option value="{{ a }}" {% if product['area']==a %}selected{% endif %}>{{ a }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="sm:col-span-2">
+          <label class="block text-sm font-semibold text-gray-700 mb-1.5">Replace Photo (optional)</label>
+          {% if product['image'] %}
+          <div class="flex items-center gap-3 mb-3">
+            <img src="/uploads/{{ product['image'] }}" class="w-16 h-16 object-cover rounded-lg border border-gray-200"/>
+            <span class="text-xs text-gray-500">Current photo. Upload new to replace.</span>
+          </div>
+          {% endif %}
+          <input type="file" name="image" accept="image/*"
+            class="w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-orange-50 file:text-orange-700 file:font-semibold hover:file:bg-orange-100"/>
+        </div>
+      </div>
+      <div class="flex gap-3 mt-6">
+        <button type="submit" class="flex-1 btn-primary justify-center py-3 rounded-lg">
+          <i class="bi bi-check-lg"></i> Save Changes
+        </button>
+        <a href="/my-listings" class="px-5 py-3 border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 text-sm font-medium flex items-center">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

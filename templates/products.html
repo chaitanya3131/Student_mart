@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}
+  {% if search %}Results for "{{ search }}"{% elif category %}{{ category }}{% else %}All Products{% endif %} — StudentMart
+{% endblock %}
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+  <div class="flex flex-col sm:flex-row gap-4">
+
+    <!-- SIDEBAR FILTERS -->
+    <aside class="w-full sm:w-56 shrink-0">
+      <form method="GET" action="/products" id="filterForm">
+        <div class="bg-white border border-gray-200 rounded-xl p-4 sticky top-24">
+          <div class="font-bold text-gray-800 border-b border-gray-100 pb-2 mb-4">Filters</div>
+
+          <!-- Search -->
+          <div class="mb-4">
+            <label class="text-xs font-semibold text-gray-500 uppercase mb-1.5 block">Search</label>
+            <input type="search" name="search" value="{{ search }}" placeholder="Keywords..."
+              class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"/>
+          </div>
+
+          <!-- Category -->
+          <div class="mb-4">
+            <label class="text-xs font-semibold text-gray-500 uppercase mb-1.5 block">Category</label>
+            {% for cat in ['Books','Calculator','Engineering Tools','Lab Equipment','Notes','Other'] %}
+            <label class="flex items-center gap-2 py-1 cursor-pointer hover:text-primary">
+              <input type="radio" name="category" value="{{ cat }}" {% if category==cat %}checked{% endif %}
+                class="accent-primary" onchange="document.getElementById('filterForm').submit()"/>
+              <span class="text-sm text-gray-700">{{ cat }}</span>
+            </label>
+            {% endfor %}
+            <label class="flex items-center gap-2 py-1 cursor-pointer">
+              <input type="radio" name="category" value="" {% if not category %}checked{% endif %}
+                class="accent-primary" onchange="document.getElementById('filterForm').submit()"/>
+              <span class="text-sm text-gray-700">All Categories</span>
+            </label>
+          </div>
+
+          <!-- Sort -->
+          <div class="mb-4">
+            <label class="text-xs font-semibold text-gray-500 uppercase mb-1.5 block">Sort By</label>
+            <select name="sort" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm" onchange="this.form.submit()">
+              <option value="newest"    {% if sort=='newest'    %}selected{% endif %}>Newest First</option>
+              <option value="price_low" {% if sort=='price_low' %}selected{% endif %}>Price: Low → High</option>
+              <option value="price_high"{% if sort=='price_high'%}selected{% endif %}>Price: High → Low</option>
+              <option value="popular"   {% if sort=='popular'   %}selected{% endif %}>Most Popular</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn-primary w-full justify-center text-sm">Apply</button>
+          {% if search or category %}
+          <a href="/products" class="block text-center text-xs text-red-500 hover:underline mt-2">Clear all filters</a>
+          {% endif %}
+        </div>
+      </form>
+    </aside>
+
+    <!-- PRODUCTS GRID -->
+    <div class="flex-1 min-w-0">
+      <div class="flex items-center justify-between mb-4">
+        <div class="text-sm text-gray-500">
+          {% if search %}<span>Results for <strong>"{{ search }}"</strong> — </span>{% endif %}
+          <strong>{{ products|length }}</strong> items found
+        </div>
+      </div>
+
+      {% if products %}
+      <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {% for p in products %}
+        {% set st = p['status'] if p['status'] else 'Available' %}
+        <a href="/product/{{ p['id'] }}" class="card-hover bg-white border border-gray-200 rounded-xl overflow-hidden group">
+          <div class="relative bg-gray-100 h-40 overflow-hidden">
+            {% if p['image'] %}
+              <img src="/uploads/{{ p['image'] }}" alt="{{ p['name'] }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/>
+            {% else %}
+              <div class="w-full h-full flex items-center justify-center text-4xl">
+                {{ {'Books':'📚','Calculator':'🧮','Lab Equipment':'🔬','Notes':'📝','Engineering Tools':'🔧'}.get(p['category'],'📦') }}
+              </div>
+            {% endif %}
+            <span class="absolute top-2 right-2 text-xs px-2 py-0.5 rounded-full font-semibold
+              {% if st=='Available' %}badge-available{% elif st=='Reserved' %}badge-reserved{% else %}badge-sold{% endif %}">
+              {{ st }}
+            </span>
+          </div>
+          <div class="p-3">
+            <div class="text-xs text-blue-600 font-medium mb-0.5 truncate">{{ p['category'] }}</div>
+            <div class="font-semibold text-gray-800 text-sm leading-snug line-clamp-2 min-h-[2.4rem]">{{ p['name'] }}</div>
+            <div class="mt-2">
+              <span class="font-black text-gray-900 text-base">₹{{ p['price'] }}</span>
+            </div>
+            <div class="flex items-center justify-between mt-1">
+              <span class="text-xs text-gray-400"><i class="bi bi-geo-alt"></i> {{ p['area'] }}</span>
+              <span class="text-xs text-gray-400"><i class="bi bi-eye"></i> {{ p['views'] }}</span>
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="text-center py-24 text-gray-400">
+        <div class="text-6xl mb-4">🔍</div>
+        <h3 class="text-lg font-bold text-gray-600 mb-2">No items found</h3>
+        <p class="text-sm">Try different keywords or remove filters.</p>
+        <a href="/products" class="btn-primary mt-4 text-sm">Browse All</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

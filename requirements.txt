@@ -1,0 +1,4 @@
+flask>=2.3.0
+flask-mail>=0.9.1
+requests>=2.31.0
+gunicorn>=21.2.0

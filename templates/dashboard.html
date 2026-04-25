@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — StudentMart{% endblock %}
+{% block extra_head %}<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>{% endblock %}
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+  <div class="mb-6">
+    <div class="text-xs text-gray-400 mb-1">StudentMart › Dashboard</div>
+    <h1 class="text-2xl font-black text-gray-900">Statistics Dashboard</h1>
+  </div>
+
+  <!-- Stat Cards -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    {% for val, label, icon, bg, tc in [
+      (total_users,'Total Users','bi-people-fill','bg-blue-50','text-blue-600'),
+      (total_products,'Total Listings','bi-box-seam','bg-orange-50','text-orange-600'),
+      (total_sold,'Items Sold','bi-bag-check','bg-green-50','text-green-700'),
+      (popular_category,'Top Category','bi-fire','bg-red-50','text-red-600'),
+    ] %}
+    <div class="bg-white border border-gray-200 rounded-xl p-5 flex items-center gap-4">
+      <div class="{{ bg }} p-3 rounded-xl shrink-0"><i class="bi {{ icon }} {{ tc }} text-2xl"></i></div>
+      <div>
+        <div class="font-black text-2xl text-gray-900 truncate max-w-[120px]">{{ val }}</div>
+        <div class="text-xs text-gray-400 mt-0.5">{{ label }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Charts -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div class="bg-white border border-gray-200 rounded-xl p-5">
+      <h3 class="font-bold text-gray-800 mb-4">Listings by Category</h3>
+      <div class="h-60"><canvas id="catChart"></canvas></div>
+    </div>
+    <div class="bg-white border border-gray-200 rounded-xl p-5">
+      <h3 class="font-bold text-gray-800 mb-4">Status Breakdown</h3>
+      <div class="h-60 flex items-center justify-center"><canvas id="statusChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Bottom -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-white border border-gray-200 rounded-xl p-5">
+      <h3 class="font-bold text-gray-800 mb-4">Recent Listings</h3>
+      <div class="space-y-3">
+        {% for p in recent_products %}
+        <a href="/product/{{ p['id'] }}" class="flex items-center gap-3 hover:bg-gray-50 -mx-2 px-2 py-1.5 rounded-lg transition-colors">
+          <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-xl shrink-0">
+            {{ {'Books':'📚','Calculator':'🧮','Lab Equipment':'🔬','Notes':'📝','Engineering Tools':'🔧'}.get(p['category'],'📦') }}
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-semibold text-gray-800 truncate">{{ p['name'] }}</div>
+            <div class="text-xs text-gray-400">{{ p['category'] }}</div>
+          </div>
+          <span class="font-black text-gray-900 text-sm shrink-0">₹{{ p['price'] }}</span>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="bg-white border border-gray-200 rounded-xl p-5">
+      <h3 class="font-bold text-gray-800 mb-4">Top Sellers</h3>
+      <div class="space-y-3">
+        {% for s in top_sellers %}
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 font-bold uppercase text-sm shrink-0">{{ s['name'][0] }}</div>
+          <div class="flex-1"><div class="text-sm font-semibold text-gray-800">{{ s['name'] }}</div></div>
+          <div class="flex items-center gap-2">
+            <div class="h-2 bg-primary rounded-full" style="width:{{ [s['listings']*14,80]|min }}px"></div>
+            <span class="text-xs text-gray-500 shrink-0">{{ s['listings'] }}</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+new Chart(document.getElementById('catChart'),{type:'bar',data:{labels:{{ cat_labels|safe }},datasets:[{label:'Listings',data:{{ cat_counts|safe }},backgroundColor:'#FF9F00',borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'#f9fafb'},ticks:{stepSize:1}},x:{grid:{display:false}}}}});
+new Chart(document.getElementById('statusChart'),{type:'doughnut',data:{labels:{{ status_labels|safe }},datasets:[{data:{{ status_counts|safe }},backgroundColor:['#22c55e','#f59e0b','#ef4444'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{padding:16,font:{size:12}}}},cutout:'65%'}});
+</script>
+{% endblock %}

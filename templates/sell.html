@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Sell an Item — StudentMart{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 sm:px-6 py-10">
+  <div class="mb-6">
+    <div class="text-xs text-gray-400 mb-1">StudentMart › Sell</div>
+    <h1 class="text-2xl font-black text-gray-900">List a New Item</h1>
+    <p class="text-sm text-gray-500 mt-1">Fill in the details below. Your listing goes live instantly.</p>
+  </div>
+  <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+    <form method="POST" action="/sell" enctype="multipart/form-data">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div class="sm:col-span-2">
+          <label class="block text-sm font-semibold text-gray-700 mb-1.5">Item Name *</label>
+          <input type="text" name="name" required placeholder="e.g. Casio FX-991 Scientific Calculator"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:border-primary"/>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1.5">Price (₹) *</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">₹</span>
+            <input type="number" name="price" required min="1" placeholder="350"
+              class="w-full border border-gray-200 rounded-lg pl-8 pr-3 py-2.5 text-sm focus:border-primary"/>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1.5">Category *</label>
+          <select name="category" required class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:border-primary text-gray-700">
+            <option value="">Select category...</option>
+            {% for c in ['Books','Calculator','Engineering Tools','Lab Equipment','Notes','Other'] %}
+            <option value="{{ c }}">{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="sm:col-span-2">
+          <label class="block text-sm font-semibold text-gray-700 mb-1.5">Description</label>
+          <textarea name="description" rows="4"
+            placeholder="Describe condition, edition, any damage... Be honest, buyers trust detailed sellers!"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm resize-none focus:border-primary"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1.5">Your Contact (Email) *</label>
+          <input type="text" name="contact" required value="{{ user.email if user else '' }}"
+            placeholder="your@email.com"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:border-primary"/>
+          <p class="text-xs text-gray-400 mt-1">Buyers will contact you here</p>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1.5">
+            Your WhatsApp Number *
+            <span class="text-xs font-normal text-green-600 ml-1">📱 Buyers will WhatsApp you</span>
+          </label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">+91</span>
+            <input type="tel" name="seller_phone" required
+              value="{{ user.phone if user and user.phone else '' }}"
+              placeholder="9876543210"
+              class="w-full border border-gray-200 rounded-lg pl-12 pr-3 py-2.5 text-sm focus:border-primary"/>
+          </div>
+          <p class="text-xs text-gray-400 mt-1">Buyers will send you a WhatsApp message on this number — 100% free!</p>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1.5">Your City/Area</label>
+          <select name="area" class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:border-primary text-gray-700">
+            {% for a in ['Dhule','Nashik','Mumbai','Pune','Aurangabad','Other'] %}
+            <option value="{{ a }}" {% if user and user.area==a %}selected{% endif %}>{{ a }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="sm:col-span-2">
+          <label class="block text-sm font-semibold text-gray-700 mb-1.5">Photo</label>
+          <div id="dropzone" class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer hover:border-primary hover:bg-orange-50/20 transition-colors">
+            <input type="file" name="image" accept="image/*" id="imgInput" class="hidden" onchange="previewImg(this)"/>
+            <div id="imgPlaceholder">
+              <i class="bi bi-cloud-arrow-up text-4xl text-gray-300 block mb-2"></i>
+              <div class="text-sm font-medium text-gray-600">Click to upload photo</div>
+              <div class="text-xs text-gray-400 mt-1">PNG, JPG, WEBP up to 10MB · Better photo = faster sale!</div>
+            </div>
+            <div id="imgPreviewBox" class="hidden">
+              <img id="imgPreview" class="w-36 h-36 object-cover rounded-xl mx-auto mb-2 border border-gray-200"/>
+              <div class="text-xs text-green-600 font-medium">✓ Photo ready</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-6 flex gap-3">
+        <button type="submit" class="flex-1 btn-primary justify-center py-3.5 text-base rounded-lg">
+          <i class="bi bi-check-circle"></i> Post Listing for Free
+        </button>
+        <a href="/products" class="px-5 py-3.5 border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 text-sm font-medium flex items-center">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+  document.getElementById('dropzone').addEventListener('click', () => document.getElementById('imgInput').click());
+  function previewImg(input) {
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        document.getElementById('imgPreview').src = e.target.result;
+        document.getElementById('imgPreviewBox').classList.remove('hidden');
+        document.getElementById('imgPlaceholder').classList.add('hidden');
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+</script>
+{% endblock %}

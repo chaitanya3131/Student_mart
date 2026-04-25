@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block title %}StudentMart — Buy & Sell Student Items{% endblock %}
+{% block content %}
+
+<!-- HERO BANNER -->
+<section class="bg-gradient-to-r from-navy-dark to-navy text-white py-10 sm:py-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+      <div>
+        <div class="inline-flex items-center gap-2 bg-primary/20 border border-primary/30 text-primary-light text-xs font-semibold px-3 py-1.5 rounded-full mb-5">
+          🎓 #1 Student Marketplace in Dhule & Nashik
+        </div>
+        <h1 class="text-4xl sm:text-5xl font-black leading-tight mb-4">
+          Buy & Sell Student<br>
+          <span class="text-primary">Items Easily</span>
+        </h1>
+        <p class="text-gray-300 text-base mb-7 max-w-md">Books, calculators, lab gear — all at student-friendly prices. List in 2 minutes. Meet on campus.</p>
+        <div class="flex flex-wrap gap-3">
+          <a href="/products" class="btn-primary text-sm px-6 py-3">
+            <i class="bi bi-bag"></i> Browse All Items
+          </a>
+          <a href="/sell" class="bg-white text-navy font-semibold px-6 py-3 rounded-md hover:bg-gray-100 text-sm flex items-center gap-2">
+            <i class="bi bi-plus-circle"></i> Sell My Item
+          </a>
+        </div>
+        <div class="flex gap-8 mt-8 text-sm">
+          <div><span class="font-black text-xl text-primary block">Free</span><span class="text-gray-400">Always</span></div>
+          <div><span class="font-black text-xl text-primary block">2 min</span><span class="text-gray-400">To list</span></div>
+          <div><span class="font-black text-xl text-primary block">₹₹₹</span><span class="text-gray-400">You save</span></div>
+        </div>
+      </div>
+      <!-- Hero Cards -->
+      <div class="hidden lg:grid grid-cols-2 gap-3">
+        {% set demos=[('📚','Physics Vol 1','₹120','Books','Available'),('🧮','Casio FX-991','₹350','Calculator','Available'),('🔬','Lab Kit Set','₹200','Lab Equipment','Reserved'),('📝','Notes Bundle','₹80','Notes','Available')] %}
+        {% for emoji, name, price, cat, st in demos %}
+        <div class="bg-white rounded-lg p-4 shadow-lg hover:shadow-xl transition-shadow">
+          <div class="text-4xl mb-2">{{ emoji }}</div>
+          <div class="font-semibold text-gray-800 text-sm truncate">{{ name }}</div>
+          <div class="text-gray-500 text-xs mb-2">{{ cat }}</div>
+          <div class="flex items-center justify-between">
+            <span class="font-black text-navy text-lg">{{ price }}</span>
+            <span class="text-xs px-2 py-0.5 rounded-full font-medium
+              {% if st=='Available' %}badge-available{% elif st=='Reserved' %}badge-reserved{% else %}badge-sold{% endif %}">
+              {{ st }}
+            </span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- CATEGORY CARDS -->
+<section class="py-10 bg-white border-b border-gray-100">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <h2 class="text-xl font-bold text-gray-800 mb-6">Shop by Category</h2>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+      {% for cat, emoji, desc in [('Books','📚','Textbooks & Novels'),('Calculator','🧮','Scientific & Basic'),('Engineering Tools','🔧','Drafting & More'),('Lab Equipment','🔬','Kits & Instruments'),('Notes','📝','Handwritten & Typed')] %}
+      <a href="/products?category={{ cat }}"
+        class="card-hover bg-gray-50 border border-gray-200 rounded-xl p-5 text-center flex flex-col items-center gap-2 hover:border-primary/40 hover:bg-orange-50/30">
+        <div class="text-4xl">{{ emoji }}</div>
+        <div class="font-bold text-gray-800 text-sm">{{ cat }}</div>
+        <div class="text-xs text-gray-400">{{ desc }}</div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+
+<!-- RECENT + POPULAR -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+
+  <!-- Recent Listings -->
+  <div class="flex items-center justify-between mb-5">
+    <h2 class="text-xl font-bold text-gray-800">Recently Listed</h2>
+    <a href="/products" class="text-sm text-blue-600 hover:underline font-medium flex items-center gap-1">See all <i class="bi bi-arrow-right"></i></a>
+  </div>
+
+  {% if recent %}
+  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-10">
+    {% for p in recent %}
+    {% set st = p['status'] if p['status'] else 'Available' %}
+    <a href="/product/{{ p['id'] }}" class="card-hover bg-white border border-gray-200 rounded-xl overflow-hidden group">
+      <!-- Image -->
+      <div class="relative bg-gray-100 h-44 overflow-hidden">
+        {% if p['image'] %}
+          <img src="/uploads/{{ p['image'] }}" alt="{{ p['name'] }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/>
+        {% else %}
+          <div class="w-full h-full flex items-center justify-center text-5xl">
+            {{ {'Books':'📚','Calculator':'🧮','Lab Equipment':'🔬','Notes':'📝','Engineering Tools':'🔧'}.get(p['category'],'📦') }}
+          </div>
+        {% endif %}
+        <span class="absolute top-2 right-2 text-xs px-2 py-0.5 rounded-full font-semibold
+          {% if st=='Available' %}badge-available{% elif st=='Reserved' %}badge-reserved{% else %}badge-sold{% endif %}">
+          {{ st }}
+        </span>
+      </div>
+      <!-- Info -->
+      <div class="p-3">
+        <div class="text-xs text-blue-600 font-medium mb-0.5">{{ p['category'] }}</div>
+        <div class="font-semibold text-gray-800 text-sm truncate leading-snug">{{ p['name'] }}</div>
+        <div class="text-xs text-gray-400 mt-0.5 truncate">{{ p['description'][:55] if p['description'] else '' }}</div>
+        <div class="mt-2 flex items-baseline justify-between">
+          <div>
+            <span class="text-lg font-black text-gray-900">₹{{ p['price'] }}</span>
+          </div>
+          <span class="text-xs text-gray-400"><i class="bi bi-eye"></i> {{ p['views'] }}</span>
+        </div>
+        <div class="text-xs text-gray-400 mt-1"><i class="bi bi-geo-alt"></i> {{ p['area'] }}</div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Popular Picks -->
+  {% if popular %}
+  <div class="bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-100 rounded-2xl p-6 mb-8">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i class="bi bi-fire text-orange-500"></i> Most Popular</h2>
+      <a href="/products?sort=popular" class="text-sm text-blue-600 hover:underline">See all</a>
+    </div>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      {% for p in popular %}
+      <a href="/product/{{ p['id'] }}" class="bg-white rounded-xl p-3 hover:shadow-md transition-shadow text-center flex flex-col items-center gap-2">
+        <div class="text-3xl">{{ {'Books':'📚','Calculator':'🧮','Lab Equipment':'🔬','Notes':'📝','Engineering Tools':'🔧'}.get(p['category'],'📦') }}</div>
+        <div class="text-xs font-semibold text-gray-700 truncate w-full text-center">{{ p['name'] }}</div>
+        <div class="font-black text-gray-900 text-sm">₹{{ p['price'] }}</div>
+        <div class="text-xs text-gray-400"><i class="bi bi-eye"></i> {{ p['views'] }} views</div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+
+
+<!-- HOW IT WORKS -->
+<section class="bg-white border-t border-gray-100 py-10">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <h2 class="text-xl font-bold text-gray-800 mb-6 text-center">How StudentMart Works</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      {% for n,emoji,title,desc in [('1','📸','List Your Item','Upload a photo and fill details in under 2 minutes. It\'s completely free.'),('2','🔍','Students Find It','Buyers search, browse, and discover your listing on the marketplace.'),('3','🤝','Meet & Exchange','Connect via the contact button, meet on campus, and exchange safely.')] %}
+      <div class="flex gap-4 items-start">
+        <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center font-black text-white shrink-0">{{ n }}</div>
+        <div>
+          <div class="font-bold text-gray-800 mb-1">{{ title }}</div>
+          <div class="text-sm text-gray-500">{{ desc }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="bg-navy py-10">
+  <div class="max-w-2xl mx-auto text-center px-4">
+    <h2 class="text-2xl font-black text-white mb-2">Have something to sell?</h2>
+    <p class="text-gray-300 mb-6 text-sm">List for free. No commission. No fees. Just students helping students.</p>
+    <a href="/sell" class="btn-primary text-sm px-8 py-3 text-base">
+      <i class="bi bi-plus-circle"></i> Post My Item for Free
+    </a>
+  </div>
+</section>
+
+{% endblock %}
